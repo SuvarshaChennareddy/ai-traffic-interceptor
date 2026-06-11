@@ -148,7 +148,10 @@ The proxy and the agent need to run on separate machines. The typical setup is:
 # On the host machine: start the pass-through proxy
 cd testing/proxy && make run
 
-# On the Linux VM: run the agent with root
+# On the Linux VM: run the agent with root (no build needed)
+cd src && sudo env $(cat ../.env | xargs) /usr/local/go/bin/go run ./cmd/ai-interceptor/
+
+# Or if you have already built the binary
 sudo env $(cat .env | xargs) ./bin/ai-interceptor
 
 # On the Linux VM: trigger a redirect

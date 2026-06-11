@@ -4,7 +4,8 @@ TAG           := $(shell git rev-parse --short HEAD 2>/dev/null || echo "dev")
 ARCH          := $(shell go env GOARCH)
 
 BIN_AGENT     := bin/ai-interceptor
-GENERATED_DIR := internal/bpf/generated
+GODIR         := src
+GENERATED_DIR := $(GODIR)/internal/bpf/generated
 
 .PHONY: all generate build docker-build docker-push deploy undeploy test lint clean
 
@@ -12,11 +13,11 @@ all: build
 
 # Requires clang + llvm on a Linux host. Use docker-build from macOS.
 generate:
-	go generate ./internal/bpf/...
+	cd $(GODIR) && go generate ./internal/bpf/...
 
 build: $(GENERATED_DIR)
-	CGO_ENABLED=0 GOOS=linux GOARCH=$(ARCH) \
-	  go build -ldflags="-s -w" -o $(BIN_AGENT) ./cmd/ai-interceptor/
+	cd $(GODIR) && CGO_ENABLED=0 GOOS=linux GOARCH=$(ARCH) \
+	  go build -ldflags="-s -w" -o ../$(BIN_AGENT) ./cmd/ai-interceptor/
 
 $(GENERATED_DIR):
 	@echo "ERROR: run 'make generate' first (needs clang on Linux, or use make docker-build)" && exit 1
@@ -37,4 +38,4 @@ undeploy:
 	kubectl delete -f deploy/k8s/ --ignore-not-found
 
 clean:
-	rm -rf bin/ internal/bpf/generated/
+	rm -rf bin/ $(GENERATED_DIR)/

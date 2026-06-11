@@ -8,17 +8,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libbpf-dev \
   && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /src
+WORKDIR /workspace
 
-COPY go.mod go.sum ./
-RUN go mod download
+COPY src/go.mod src/go.sum src/
+RUN cd src && go mod download
 
 COPY . .
 
 # Compile bpf/ai_interceptor.c → embedded Go bytecode files
-RUN go generate ./internal/bpf/...
+RUN cd src && go generate ./internal/bpf/...
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} \
+RUN cd src && CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} \
     go build -ldflags="-s -w" -o /out/ai-interceptor ./cmd/ai-interceptor/
 
 # ── Stage 2: agent image ──────────────────────────────────────────────────────
