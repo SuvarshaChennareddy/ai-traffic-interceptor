@@ -70,11 +70,11 @@ Both `dns_events` and `redirect_events` use `BPF_MAP_TYPE_RINGBUF` rather than p
 | TC hook | `bpf/ai_interceptor.c` | Captures DNS responses on eth0 ingress |
 | cgroup/connect4 hook | `bpf/ai_interceptor.c` | Intercepts and rewrites outbound connections |
 | BPF maps | `bpf/maps.h` | Shared state between kernel and userspace |
-| DNS service | `internal/bpf/dns/service.go` | Parses DNS events, writes resolved IPs to map |
-| BPF manager | `internal/bpf/hooks.go` | Loads eBPF objects, attaches hooks, seeds proxy config |
-| Ring buffer readers | `internal/bpf/reader.go` | Reads dns_events and redirect_events async |
-| Config | `internal/config/config.go` | Env-var config via cleanenv |
-| Logger | `internal/logger/logger.go` | Structured JSON output via zap |
+| DNS service | `src/internal/bpf/dns/service.go` | Parses DNS events, writes resolved IPs to map |
+| BPF manager | `src/internal/bpf/hooks.go` | Loads eBPF objects, attaches hooks, seeds proxy config |
+| Ring buffer readers | `src/internal/bpf/reader.go` | Reads dns_events and redirect_events async |
+| Config | `src/internal/config/config.go` | Env-var config via cleanenv |
+| Logger | `src/internal/logger/logger.go` | Structured JSON output via zap |
 
 ---
 
