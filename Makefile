@@ -6,7 +6,7 @@ ARCH          := $(shell go env GOARCH)
 BIN_AGENT     := bin/ai-interceptor
 GENERATED_DIR := internal/bpf/generated
 
-.PHONY: all generate build docker-build docker-buildx docker-push deploy undeploy test lint clean
+.PHONY: all generate build docker-build docker-push deploy undeploy test lint clean
 
 all: build
 
@@ -22,15 +22,11 @@ $(GENERATED_DIR):
 	@echo "ERROR: run 'make generate' first (needs clang on Linux, or use make docker-build)" && exit 1
 
 docker-build:
-	docker build -f deploy/docker/Dockerfile -t $(IMAGE_AGENT):$(TAG) -t $(IMAGE_AGENT):latest .
-
-docker-buildx:
 	docker buildx build -f deploy/docker/Dockerfile \
 	  --platform linux/amd64,linux/arm64 --push \
 	  -t $(IMAGE_AGENT):$(TAG) -t $(IMAGE_AGENT):latest .
 
-docker-push:
-	docker push $(IMAGE_AGENT):$(TAG) $(IMAGE_AGENT):latest
+docker-push: docker-build
 
 deploy:
 	kubectl apply -f deploy/k8s/configmap.yaml

@@ -1,5 +1,6 @@
 # ── Stage 1: builder ─────────────────────────────────────────────────────────
-FROM golang:1.23-bookworm AS builder
+FROM --platform=$BUILDPLATFORM golang:1.24-bookworm AS builder
+ARG TARGETARCH
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     clang \
@@ -17,7 +18,7 @@ COPY . .
 # Compile bpf/ai_interceptor.c → embedded Go bytecode files
 RUN go generate ./internal/bpf/...
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=$(go env GOARCH) \
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} \
     go build -ldflags="-s -w" -o /out/ai-interceptor ./cmd/ai-interceptor/
 
 # ── Stage 2: agent image ──────────────────────────────────────────────────────

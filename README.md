@@ -95,23 +95,45 @@ In Kubernetes, these are set via `deploy/k8s/configmap.yaml`.
 
 ## Build & Deployment
 
+### Quick deploy (public image)
+
+A public multi-arch image (`linux/amd64` + `linux/arm64`) is available at:
+
+```
+ghcr.io/suvarshachennareddy/ai-traffic-interceptor:latest
+```
+
+1. Edit `deploy/k8s/configmap.yaml` with your proxy IP
+2. Deploy:
+
 ```bash
-# Requires clang + llvm on Linux. From macOS, use docker-build.
-make generate && make build
-
-# Docker (works from any OS)
-make docker-build
-
-# Push and deploy to Kubernetes
-REGISTRY=your-registry make docker-push
-# Edit deploy/k8s/configmap.yaml with your proxy IP first
 make deploy
+```
 
-# Watch logs
+3. Watch logs:
+
+```bash
 kubectl logs -n kube-system -l app=ai-traffic-interceptor -f
 ```
 
 The DaemonSet runs in `kube-system` with `NET_ADMIN`, `BPF`, and `SYS_ADMIN` capabilities. `hostNetwork: true` is required so the TC hook attaches to the node's physical interface.
+
+### Building your own image
+
+```bash
+# Build multi-arch and push to your registry
+make docker-build REGISTRY=your-registry
+
+# Deploy
+make deploy REGISTRY=your-registry
+```
+
+### Local binary build
+
+```bash
+# Requires clang + llvm on Linux. From macOS, use docker-build above.
+make generate && make build
+```
 
 ### Local testing
 
