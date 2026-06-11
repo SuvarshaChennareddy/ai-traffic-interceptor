@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: ai-traffic-interceptor
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      app: ai-traffic-interceptor
+  template:
+    metadata:
+      labels:
+        app: ai-traffic-interceptor
+    spec:
+      serviceAccountName: ai-traffic-interceptor
+      hostNetwork: true
+      hostPID: false
+      containers:
+        - name: interceptor
+          image: IMAGE_TAG
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+          securityContext:
+            privileged: false
+            capabilities:
+              add:
+                - NET_ADMIN
+                - BPF
+                - SYS_ADMIN  # fallback for kernels < 5.8 without CAP_BPF
+          env:
+            - name: PROXY_IP
+              valueFrom:
+                configMapKeyRef:
+                  name: ai-interceptor-config
+                  key: proxy_ip
+            - name: PROXY_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: ai-interceptor-config
+                  key: proxy_port
+            - name: NETWORK_INTERFACE
+              value: "eth0"
+            - name: AI_DOMAINS
+              valueFrom:
+                configMapKeyRef:
+                  name: ai-interceptor-config
+                  key: ai_domains
+            - name: LOG_LEVEL
+              valueFrom:
+                configMapKeyRef:
+                  name: ai-interceptor-config
+                  key: log_level
+          volumeMounts:
+            - name: cgroup-fs
+              mountPath: /sys/fs/cgroup
+            - name: bpf-fs
+              mountPath: /sys/fs/bpf
+      volumes:
+        - name: cgroup-fs
+          hostPath:
+            path: /sys/fs/cgroup
+            type: Directory
+        - name: bpf-fs
+          hostPath:
+            path: /sys/fs/bpf
+            type: Directory
+      tolerations:
+        - operator: Exists

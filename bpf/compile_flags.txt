@@ -1,0 +1,7 @@
+-I./include
+-target
+bpf
+-O2
+-g
+-Wall
+-fno-stack-protector
