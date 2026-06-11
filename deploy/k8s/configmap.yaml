@@ -6,5 +6,5 @@ metadata:
 data:
   proxy_ip: "10.100.0.50"
   proxy_port: "8443"
-  log_level: "info"
+  log_level: "debug"
   ai_domains: "openai.com,anthropic.com,generativelanguage.googleapis.com,aiplatform.googleapis.com,cohere.ai,cohere.com,huggingface.co,mistral.ai,together.xyz,groq.com,perplexity.ai,deepseek.com"
