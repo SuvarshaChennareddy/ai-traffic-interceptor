@@ -31,7 +31,7 @@ docker-push: docker-build
 deploy:
 	kubectl apply -f deploy/k8s/configmap.yaml
 	kubectl apply -f deploy/k8s/clusterrole.yaml
-	sed "s|IMAGE_TAG|$(IMAGE_AGENT):$(TAG)|g" deploy/k8s/daemonset.yaml | kubectl apply -f -
+	sed "s|IMAGE_TAG|$(IMAGE_AGENT):latest|g" deploy/k8s/daemonset.yaml | kubectl apply -f -
 
 undeploy:
 	kubectl delete -f deploy/k8s/ --ignore-not-found

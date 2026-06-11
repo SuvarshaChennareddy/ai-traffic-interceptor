@@ -107,7 +107,7 @@ ghcr.io/suvarshachennareddy/ai-traffic-interceptor:latest
 2. Deploy:
 
 ```bash
-make deploy
+make deploy REGISTRY=ghcr.io/suvarshachennareddy
 ```
 
 3. Watch logs:
@@ -134,6 +134,8 @@ make deploy REGISTRY=your-registry
 # Requires clang + llvm on Linux. From macOS, use docker-build above.
 make generate && make build
 ```
+
+> **Note:** eBPF compilation was tested with clang 17.0.6 on Ubuntu 22.04 (jammy). Yes, it's a bit old — but it works. Newer versions (18+) should be fine too.
 
 ### Local testing
 
