@@ -28,4 +28,6 @@ const (
 	// I/O buffer sizes.
 	httpReadBufSize  = 4096
 	httpMaxHeaderBuf = 16384
+
+	needle = "\r\nhost: "
 )

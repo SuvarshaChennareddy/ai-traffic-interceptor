@@ -39,6 +39,7 @@ func (svc *Service) ProcessDNSEvent(rawMsg []byte) error {
 
 		src := strings.TrimSuffix(cname.Hdr.Name, ".")
 		tgt := strings.TrimSuffix(cname.Target, ".")
+
 		if svc.isAIDomain(src) {
 			aiCNAMEs[tgt] = src
 			svc.Log.Debug("dns cname chain started",
@@ -83,6 +84,7 @@ func (svc *Service) ProcessDNSEvent(rawMsg []byte) error {
 			zap.String("ip", net.IP(ip4).String()),
 			zap.Uint32("ttl_s", rec.Hdr.Ttl),
 		)
+
 		svc.writeDestination(ip4, aiHostname, rec.Hdr.Ttl)
 	}
 
@@ -100,12 +102,10 @@ func (svc *Service) isAIDomain(hostname string) bool {
 }
 
 func (svc *Service) writeDestination(ip4 []byte, hostname string, ttl uint32) {
-	// On little-endian hosts (amd64/arm64), reading network-order bytes as
-	// LittleEndian produces a uint32 that cilium/ebpf re-encodes to the same
-	// bytes, matching ctx->user_ip4 (network byte order) in the BPF program.
-	key := binary.LittleEndian.Uint32(ip4)
+	key := binary.NativeEndian.Uint32(ip4)
 
 	var info generated.AIInterceptorAiDestInfoT
+
 	for i := 0; i < len(hostname) && i < len(info.Hostname); i++ {
 		info.Hostname[i] = int8(hostname[i])
 	}

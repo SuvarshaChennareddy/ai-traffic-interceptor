@@ -146,19 +146,20 @@ The proxy and the agent need to run on separate machines. The typical setup is:
 
 ```bash
 # On the host machine: start the pass-through proxy
-cd testing/proxy && make run
+cd testing/proxy && go run .
 
-# On the Linux VM: run the agent with root (no build needed)
-cd src && sudo env $(cat ../.env | xargs) /usr/local/go/bin/go run ./cmd/ai-interceptor/
+# On the Linux VM: create src/cmd/ai-interceptor/.env with your config (see below),
+# then run the agent with root
+cd src && sudo -E env $(cat cmd/ai-interceptor/.env | xargs) /usr/local/go/bin/go run ./cmd/ai-interceptor/
 
 # Or if you have already built the binary
-sudo env $(cat .env | xargs) ./bin/ai-interceptor
+sudo env $(cat src/cmd/ai-interceptor/.env | xargs) ./bin/ai-interceptor
 
 # On the Linux VM: trigger a redirect
 curl https://api.openai.com/v1/models -H "Authorization: Bearer $OPENAI_API_KEY"
 ```
 
-Set `PROXY_IP` in `.env` to the IP of the host machine as seen from the Linux VM:
+Create `src/cmd/ai-interceptor/.env` with:
 
 ```
 PROXY_IP=<host-machine-ip>
@@ -166,6 +167,8 @@ PROXY_PORT=8443
 NETWORK_INTERFACE=eth0
 LOG_LEVEL=debug
 ```
+
+Set `PROXY_IP` to the IP of the host machine as seen from the Linux VM.
 
 ---
 

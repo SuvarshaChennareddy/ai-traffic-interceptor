@@ -83,7 +83,6 @@ func NewManager(cfg *config.Config, log *zap.Logger) (*Manager, error) {
 
 func (m *Manager) Close() error {
 	m.closeLinks()
-
 	return m.Objs.Close()
 }
 
@@ -102,11 +101,9 @@ func (m *Manager) writeProxyConfig(proxyIP string, proxyPort uint16) error {
 		return fmt.Errorf("invalid proxy IP %q", proxyIP)
 	}
 
-	// LittleEndian.Uint32 on network-order bytes gives a uint32 that
-	// cilium/ebpf re-encodes to the original bytes, matching the kernel's NBO.
 	cfg := generated.AIInterceptorProxyConfigT{
-		Ip:   binary.LittleEndian.Uint32(ip),
-		Port: uint16(proxyPort>>8) | uint16(proxyPort<<8), // htons
+		Ip:   binary.NativeEndian.Uint32(ip),
+		Port: ntohs(proxyPort),
 	}
 
 	return m.Objs.ProxyConfig.Update(proxyConfigKey, cfg, ebpf.UpdateAny)
@@ -144,6 +141,7 @@ func (m *Manager) attachTC(iface *net.Interface) error {
 	}
 
 	m.links = append(m.links, &tcAttachment{iface: iface, filter: filter})
+
 	return nil
 }
 

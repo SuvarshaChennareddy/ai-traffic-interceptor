@@ -91,8 +91,10 @@ func handle(conn net.Conn) {
 	upstream.SetDeadline(time.Time{})
 
 	errc := make(chan error, 2)
+
 	go func() { _, err := io.Copy(upstream, conn); errc <- err }()
 	go func() { _, err := io.Copy(conn, upstream); errc <- err }()
+
 	<-errc
 }
 
@@ -104,6 +106,7 @@ func extractSNI(conn net.Conn, firstByte byte) (host string, peeked []byte, err 
 
 	recLen := int(binary.BigEndian.Uint16(hdr[tlsRecordLenOffset:tlsRecordHdrTail]))
 	recData := make([]byte, recLen)
+
 	if _, err = io.ReadFull(conn, recData); err != nil {
 		return
 	}
@@ -128,29 +131,34 @@ func parseSNI(hello []byte) string {
 	if len(hello) < clientHelloMinLen {
 		return ""
 	}
+
 	pos := clientHelloRandOffset
 
 	if pos+1 > len(hello) {
 		return ""
 	}
+
 	sessLen := int(hello[pos])
 	pos += 1 + sessLen
 
 	if pos+2 > len(hello) {
 		return ""
 	}
+
 	cipherLen := int(binary.BigEndian.Uint16(hello[pos : pos+2]))
 	pos += 2 + cipherLen
 
 	if pos+1 > len(hello) {
 		return ""
 	}
+
 	compLen := int(hello[pos])
 	pos += 1 + compLen
 
 	if pos+2 > len(hello) {
 		return ""
 	}
+
 	extTotal := int(binary.BigEndian.Uint16(hello[pos : pos+2]))
 	pos += 2
 
@@ -175,13 +183,16 @@ func parseSNI(hello []byte) string {
 				return string(ext[sniNameOffset : sniNameOffset+nameLen])
 			}
 		}
+
 		pos += extLen
 	}
+
 	return ""
 }
 
 func extractHTTPHost(conn net.Conn, firstByte byte) (host string, peeked []byte, err error) {
 	var buf bytes.Buffer
+
 	buf.WriteByte(firstByte)
 
 	tmp := make([]byte, httpReadBufSize)
@@ -204,16 +215,17 @@ func extractHTTPHost(conn net.Conn, firstByte byte) (host string, peeked []byte,
 	if host != "" {
 		err = nil
 	}
+
 	return
 }
 
 func parseHostHeader(data []byte) string {
 	lower := bytes.ToLower(data)
-	const needle = "\r\nhost: "
 	idx := bytes.Index(lower, []byte(needle))
 	if idx == -1 {
 		return ""
 	}
+
 	start := idx + len(needle)
 	rest := data[start:]
 	end := bytes.IndexByte(rest, '\r')
@@ -223,5 +235,6 @@ func parseHostHeader(data []byte) string {
 	if end == -1 {
 		return string(bytes.TrimSpace(rest))
 	}
+
 	return string(bytes.TrimSpace(rest[:end]))
 }
