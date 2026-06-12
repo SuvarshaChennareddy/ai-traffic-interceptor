@@ -11,7 +11,7 @@ GENERATED_DIR := $(GODIR)/internal/bpf/generated
 
 all: build
 
-# Requires clang + llvm on a Linux host. Use docker-build from macOS.
+# Requires clang, llvm, libbpf-dev, and Go on a Linux host. Use docker-build from macOS.
 generate:
 	cd $(GODIR) && go generate ./internal/bpf/...
 

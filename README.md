@@ -131,11 +131,11 @@ make deploy REGISTRY=your-registry
 ### Local binary build
 
 ```bash
-# Requires clang + llvm on Linux. From macOS, use docker-build above.
+# Requires clang, llvm, libbpf-dev, and Go on Linux. From macOS, use docker-build above.
 make generate && make build
 ```
 
-> **Note:** eBPF compilation was tested with clang 17.0.6 on Ubuntu 22.04 (jammy). Yes, it's a bit old 😄. Newer versions (18+) should work but haven't been tested.
+> **Note:** eBPF compilation was tested with clang 17.0.6 on Ubuntu 22.04 (jammy) with kernel 5.15. Yes, it's a bit old 😄. Newer clang versions (18+) should work but haven't been tested.
 
 ### Local testing
 
