@@ -135,7 +135,7 @@ make deploy REGISTRY=your-registry
 make generate && make build
 ```
 
-> **Note:** eBPF compilation was tested with clang 17.0.6 on Ubuntu 22.04 (jammy). Yes, it's a bit old but it works. Newer versions (18+) should be fine too.
+> **Note:** eBPF compilation was tested with clang 17.0.6 on Ubuntu 22.04 (jammy). Yes, it's a bit old 😄. Newer versions (18+) should work but haven't been tested.
 
 ### Local testing
 
