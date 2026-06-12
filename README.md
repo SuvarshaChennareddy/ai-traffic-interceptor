@@ -179,6 +179,7 @@ Set `PROXY_IP` to the IP of the host machine as seen from the Linux VM.
 | `HTTP_PROXY` / Istio sidecars | Traffic hits the sidecar or proxy first, not the AI IP directly. Hook won't intercept at the AI IP level |
 | DNS over HTTPS / DoT | TC hook filters port 53 only. DoH (port 443) and DoT (port 853) are not captured |
 | IPv6 | Only `cgroup/connect4` implemented. Needs `cgroup/connect6` + `ai_destinations_v6` map |
+| DNS processing race | The TC hook captures the DNS response and the app receives it concurrently. If the app calls `connect()` before userspace parses the event and writes to `ai_destinations`, the first connection to a new AI IP is not intercepted |
 | TTL expiry | `ai_destinations` is LRU but no goroutine actively evicts entries after their DNS TTL expires |
 | TLS inspection | Out of scope. Reading plaintext AI request bodies would require SSL uprobes |
 | DNS TCP fragmentation | TC hook captures the first fragment only. Multi-fragment DNS-over-TCP responses are partially handled |
