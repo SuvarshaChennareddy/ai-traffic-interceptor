@@ -170,6 +170,10 @@ LOG_LEVEL=debug
 
 Set `PROXY_IP` to the IP of the host machine as seen from the Linux VM.
 
+### Demo
+
+[![Demo](https://img.youtube.com/vi/_fXw0Jgr1Vc/0.jpg)](https://www.youtube.com/watch?v=_fXw0Jgr1Vc)
+
 ---
 
 ## Known Limitations
