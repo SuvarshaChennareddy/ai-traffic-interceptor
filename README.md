@@ -178,6 +178,9 @@ Set `PROXY_IP` to the IP of the host machine as seen from the Linux VM.
 
 ## Known Limitations
 
+Tested on Linux kernel 5.15+. Older kernels lack `BPF_MAP_TYPE_RINGBUF` (5.8) support.
+
+
 | Limitation | Notes |
 |---|---|
 | `HTTP_PROXY` / Istio sidecars | Traffic hits the sidecar or proxy first, not the AI IP directly. Hook won't intercept at the AI IP level |
