@@ -40,7 +40,7 @@ func NewManager(cfg *config.Config, log *zap.Logger) (*Manager, error) {
 	if err := generated.LoadAIInterceptorObjects(objs, opts); err != nil {
 		var ve *ebpf.VerifierError
 		if errors.As(err, &ve) {
-			return nil, fmt.Errorf("BPF verifier rejected program: %v", ve)
+			return nil, fmt.Errorf("BPF verifier rejected program: %+v", ve)
 		}
 
 		return nil, fmt.Errorf("load BPF objects: %w", err)

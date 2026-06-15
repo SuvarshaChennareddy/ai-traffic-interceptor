@@ -16,7 +16,7 @@
 #define MAX_HOSTNAME_LEN     64
 #define MAX_COMMAND_SIZE     16
 #define MAX_COMMANDLINE_SIZE 127
-#define MAX_DNS_MSG_SIZE     512  // must be power of 2 for verifier masking
+#define MAX_DNS_MSG_SIZE     512
 
 // ── Map sizing ───────────────────────────────────────────────────────────────
 #define AI_DEST_MAP_MAX_ENTRIES    65536

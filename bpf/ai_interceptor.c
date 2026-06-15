@@ -47,30 +47,28 @@ int tc_dns_observer(struct __sk_buff *skb)
 	if (payload_offset >= skb->len)
 		return TC_ACT_OK;
 
-	__u32 payload_len = skb->len - payload_offset;
+	__u32 payload_len = (skb->len - payload_offset);
+	// The verifier can't prove payload_len is non-negative for the
+	// bpf_skb_load_bytes call (R4 min value is negative). This mask
+	// gives it a provable bound of [0, 1023]. We use 2*MAX_DNS_MSG_SIZE-1
+	// instead of MAX_DNS_MSG_SIZE-1 so a 512-byte payload maps to 512, not 0.
+	payload_len &= (2*MAX_DNS_MSG_SIZE - 1);
 
 	if (payload_len < DNS_HDR_MIN_LEN || payload_len > MAX_DNS_MSG_SIZE)
-		return TC_ACT_OK;
-
-	// Mask gives the verifier an explicit upper bound.
-	// The follow-up check gives it an explicit lower bound,
-	// ruling out the size=0 case that occurs when payload_len == MAX_DNS_MSG_SIZE.
-	__u32 copy_len = payload_len & (MAX_DNS_MSG_SIZE - 1);
-	if (copy_len < DNS_HDR_MIN_LEN)
 		return TC_ACT_OK;
 
 	struct dns_event_t *ev = bpf_ringbuf_reserve(&dns_events, sizeof(*ev), 0);
 	if (!ev)
 		return TC_ACT_OK;
 
-	ev->msg_size = copy_len;
+	ev->msg_size = payload_len;
 
-	if (bpf_skb_load_bytes(skb, payload_offset, ev->msg, copy_len) < 0) {
+	if (bpf_skb_load_bytes(skb, payload_offset, ev->msg, payload_len) < 0) {
 		bpf_ringbuf_discard(ev, 0);
 		return TC_ACT_OK;
 	}
 
-	if (!is_valid_dns_response(ev->msg, copy_len)) {
+	if (!is_valid_dns_response(ev->msg, payload_len)) {
 		bpf_ringbuf_discard(ev, 0);
 		return TC_ACT_OK;
 	}
