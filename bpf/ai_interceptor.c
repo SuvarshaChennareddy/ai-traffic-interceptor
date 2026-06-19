@@ -40,9 +40,22 @@ int tc_dns_observer(struct __sk_buff *skb)
 
 	// DNS payload starts after the transport header.
 	// For DNS-over-TCP, skip the 2-byte message-length prefix before the DNS message.
-	__u16 transport_hdr_len = (ip_proto == 17) ? UDP_HDR_LEN : TCP_HDR_MINLEN;
-	__u16 dns_prefix        = (ip_proto == 6)  ? DNS_TCP_LEN_PREFIX : 0;
-	__u16 payload_offset    = transport_offset + transport_hdr_len + dns_prefix;
+	__u16 transport_hdr_len;
+	if (ip_proto == 17) {
+		transport_hdr_len = UDP_HDR_LEN;
+	} else {
+		// TCP header length is variable; read the data offset field (byte 12,
+		// upper 4 bits, in 4-byte units) to get the actual header length.
+		__u8 doff;
+		if (bpf_skb_load_bytes(skb, transport_offset + 12, &doff, 1) < 0)
+			return TC_ACT_OK;
+		transport_hdr_len = ((__u16)(doff >> 4)) * 4;
+		if (transport_hdr_len < TCP_HDR_MINLEN)
+			return TC_ACT_OK;
+	}
+	
+	__u16 dns_prefix     = (ip_proto == 6) ? DNS_TCP_LEN_PREFIX : 0;
+	__u16 payload_offset = transport_offset + transport_hdr_len + dns_prefix;
 	
 	if (payload_offset >= skb->len)
 		return TC_ACT_OK;
