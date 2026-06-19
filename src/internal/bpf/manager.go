@@ -140,13 +140,12 @@ func (m *Manager) attachTC(iface *net.Interface) error {
 		return fmt.Errorf("add TC filter: %w", err)
 	}
 
-	m.links = append(m.links, &tcAttachment{iface: iface, filter: filter})
+	m.links = append(m.links, &tcAttachment{filter: filter})
 
 	return nil
 }
 
 type tcAttachment struct {
-	iface  *net.Interface
 	filter *netlink.BpfFilter
 }
 
